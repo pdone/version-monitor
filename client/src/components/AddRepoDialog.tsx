@@ -13,17 +13,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Plus } from 'lucide-react';
 import { useI18nStore } from '@/i18n';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface AddRepoDialogProps {
-  onSubmit: (owner: string, repo: string, cronExpression: string) => Promise<void>;
+  onSubmit: (owner: string, repo: string, useGlobalCron: boolean, cronExpression: string) => Promise<void>;
+  globalCron: string;
 }
 
-export function AddRepoDialog({ onSubmit }: AddRepoDialogProps) {
+export function AddRepoDialog({ onSubmit, globalCron }: AddRepoDialogProps) {
   const { t } = useI18nStore();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [owner, setOwner] = useState('');
   const [repo, setRepo] = useState('');
+  const [useGlobalCron, setUseGlobalCron] = useState(true);
   const [cronExpression, setCronExpression] = useState('0 */6 * * *');
   const [error, setError] = useState('');
 
@@ -33,10 +36,11 @@ export function AddRepoDialog({ onSubmit }: AddRepoDialogProps) {
     setLoading(true);
 
     try {
-      await onSubmit(owner, repo, cronExpression);
+      await onSubmit(owner, repo, useGlobalCron, useGlobalCron ? globalCron : cronExpression);
       setOpen(false);
       setOwner('');
       setRepo('');
+      setUseGlobalCron(true);
       setCronExpression('0 */6 * * *');
     } catch (err: any) {
       setError(err.message || t('repos.addFailed'));
@@ -60,7 +64,7 @@ export function AddRepoDialog({ onSubmit }: AddRepoDialogProps) {
             <DialogDescription>{t('addRepoDialog.description')}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="owner">{t('addRepoDialog.owner')}</Label>
                 <Input
@@ -82,28 +86,38 @@ export function AddRepoDialog({ onSubmit }: AddRepoDialogProps) {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="cron">{t('addRepoDialog.cronExpression')}</Label>
-              <Input
-                id="cron"
-                placeholder="0 */6 * * *"
-                value={cronExpression}
-                onChange={(e) => setCronExpression(e.target.value)}
-                required
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="useGlobalCron"
+                checked={useGlobalCron}
+                onCheckedChange={(checked) => setUseGlobalCron(checked === true)}
               />
-              <p className="text-xs text-muted-foreground">
-                {t('addRepoDialog.cronHelp').split('{link}')[0]}
-                <a
-                  href="https://crontab.guru"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  crontab.guru
-                </a>
-                {t('addRepoDialog.cronHelp').split('{link}')[1]}
-              </p>
+              <Label htmlFor="useGlobalCron" className="cursor-pointer">{t('addRepoDialog.useGlobalCron')}</Label>
             </div>
+            {!useGlobalCron && (
+              <div className="space-y-2">
+                <Label htmlFor="cron">{t('addRepoDialog.cronExpression')}</Label>
+                <Input
+                  id="cron"
+                  placeholder="0 */6 * * *"
+                  value={cronExpression}
+                  onChange={(e) => setCronExpression(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('addRepoDialog.cronHelp').split('{link}')[0]}
+                  <a
+                    href="https://crontab.guru"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    crontab.guru
+                  </a>
+                  {t('addRepoDialog.cronHelp').split('{link}')[1]}
+                </p>
+              </div>
+            )}
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
           <DialogFooter>

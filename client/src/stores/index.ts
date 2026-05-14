@@ -6,7 +6,7 @@ interface RepoState {
   loading: boolean;
   error: string | null;
   fetchRepos: () => Promise<void>;
-  addRepo: (owner: string, repo: string, cronExpression?: string) => Promise<void>;
+  addRepo: (owner: string, repo: string, useGlobalCron: boolean, cronExpression?: string) => Promise<void>;
   updateRepo: (id: number, data: Partial<Repository>) => Promise<void>;
   deleteRepo: (id: number) => Promise<void>;
   markUpdated: (id: number) => Promise<void>;
@@ -28,10 +28,10 @@ export const useRepoStore = create<RepoState>((set, get) => ({
     }
   },
 
-  addRepo: async (owner: string, repo: string, cronExpression?: string) => {
+  addRepo: async (owner: string, repo: string, useGlobalCron: boolean, cronExpression?: string) => {
     set({ loading: true, error: null });
     try {
-      await repoApi.create({ owner, repo, cronExpression });
+      await repoApi.create({ owner, repo, useGlobalCron, cronExpression });
       await get().fetchRepos();
     } catch (error: any) {
       const message = error.response?.data?.error || 'Failed to add repository';

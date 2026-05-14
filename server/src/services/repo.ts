@@ -4,7 +4,7 @@ import { eq, and } from 'drizzle-orm';
 import { getLatestRelease, getRepoInfo } from './github';
 import { scheduleRepo, unscheduleRepo, checkRepo } from './scheduler';
 
-export async function addRepo(owner: string, repo: string, cronExpression?: string): Promise<Repository> {
+export async function addRepo(owner: string, repo: string, useGlobalCron: boolean = true, cronExpression?: string): Promise<Repository> {
   const existing = db.select().from(repositories)
     .where(and(eq(repositories.owner, owner), eq(repositories.repo, repo)))
     .get();
@@ -25,6 +25,7 @@ export async function addRepo(owner: string, repo: string, cronExpression?: stri
     repo,
     description: repoInfo.description,
     htmlUrl: repoInfo.htmlUrl,
+    useGlobalCron,
     cronExpression: cronExpression || '0 */6 * * *',
     localVersion: release?.tagName || null,
     latestVersion: release?.tagName || null,

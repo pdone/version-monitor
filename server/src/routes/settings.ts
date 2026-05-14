@@ -2,8 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import { settings } from '../db/schema';
-import { eq } from 'drizzle-orm';
 import { defaultWebhookBody, defaultNtfyBody, defaultVocechatBody, sendTestNotification } from '../services/notification';
+import { refreshGlobalCronSchedule } from '../services/scheduler';
 
 const router = Router();
 
@@ -50,10 +50,17 @@ router.put('/', async (req: Request, res: Response) => {
     const body = updateSettingsSchema.parse(req.body);
 
     for (const [key, value] of Object.entries(body)) {
-      db.update(settings)
-        .set({ value })
-        .where(eq(settings.key, key))
+      db.insert(settings)
+        .values({ key, value })
+        .onConflictDoUpdate({
+          target: settings.key,
+          set: { value },
+        })
         .run();
+    }
+
+    if ('global_cron' in body) {
+      refreshGlobalCronSchedule();
     }
 
     const allSettings = db.select().from(settings).all();

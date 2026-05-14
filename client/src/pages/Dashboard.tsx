@@ -21,10 +21,10 @@ export function Dashboard() {
   const reposNeedingUpdate = repos.filter((r) => r.hasUpdate);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
+    <div className="space-y-4 md:space-y-6">
+      <h1 className="text-2xl md:text-3xl font-bold">{t('dashboard.title')}</h1>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('dashboard.totalRepos')}</CardTitle>
@@ -75,24 +75,24 @@ export function Dashboard() {
               {reposNeedingUpdate.map((repo) => (
                 <div
                   key={repo.id}
-                  className="flex items-center justify-between rounded-lg border p-4"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border p-4"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <a
                       href={repo.htmlUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-medium hover:underline"
+                      className="font-medium hover:underline break-all"
                     >
                       {repo.owner}/{repo.repo}
                     </a>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-muted-foreground">
                       <span>{t('repos.localVersion')}: {repo.localVersion || 'N/A'}</span>
-                      <span>→</span>
+                      <span className="hidden sm:inline">→</span>
                       <span>{t('repos.latestVersion')}: {repo.latestVersion || 'N/A'}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     {repo.latestVersionUrl && (
                       <Button variant="outline" size="sm" asChild>
                         <a
@@ -135,22 +135,22 @@ export function Dashboard() {
               {repos.slice(0, 5).map((repo) => (
                 <div
                   key={repo.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-lg border p-3"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <a
                       href={repo.htmlUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-medium hover:underline"
+                      className="font-medium hover:underline break-all"
                     >
                       {repo.owner}/{repo.repo}
                     </a>
                     {repo.hasUpdate && (
-                      <Badge variant="success">{t('dashboard.updateAvailable')}</Badge>
+                      <Badge variant="success" className="shrink-0">{t('dashboard.updateAvailable')}</Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
                     <Clock className="h-3 w-3" />
                     {repo.lastCheckedAt
                       ? new Date(repo.lastCheckedAt).toLocaleString()

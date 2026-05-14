@@ -38,11 +38,11 @@ export function Settings() {
     try {
       const templates: Record<string, string> = {};
       if (channel === 'webhook') {
-        templates.webhook_body = formData.webhook_body || '';
+        templates.webhook_body = formData.webhook_body || defaults.webhook_body || '';
       } else if (channel === 'ntfy') {
-        templates.ntfy_body = formData.ntfy_body || '';
+        templates.ntfy_body = formData.ntfy_body || defaults.ntfy_body || '';
       } else if (channel === 'vocechat') {
-        templates.vocechat_body = formData.vocechat_body || '';
+        templates.vocechat_body = formData.vocechat_body || defaults.vocechat_body || '';
       }
       const result = await testNotification(channel, templates);
       if (result.errors && result.errors.length > 0) {
@@ -127,6 +127,20 @@ export function Settings() {
     settings: SettingItem[];
   }[] = [
     {
+      title: t('settings.security'),
+      description: t('settings.securityDesc'),
+      channel: null,
+      settings: [
+        {
+          key: 'access_password',
+          label: t('settings.accessPassword'),
+          placeholder: t('settings.accessPasswordPlaceholder'),
+          description: t('settings.accessPasswordHelp'),
+          type: 'password' as const,
+        },
+      ],
+    },
+    {
       title: t('settings.github'),
       description: t('settings.githubDesc'),
       channel: null,
@@ -137,6 +151,20 @@ export function Settings() {
           placeholder: t('settings.githubTokenPlaceholder'),
           description: t('settings.githubTokenHelp'),
           type: 'password' as const,
+        },
+      ],
+    },
+    {
+      title: t('settings.globalCron'),
+      description: t('settings.globalCronDesc'),
+      channel: null,
+      settings: [
+        {
+          key: 'global_cron',
+          label: t('settings.globalCron'),
+          placeholder: '0 2 * * *',
+          description: t('settings.globalCronHelp'),
+          type: 'text' as const,
         },
       ],
     },
@@ -269,8 +297,8 @@ export function Settings() {
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">{t('settings.title')}</h1>
+      <div className="space-y-4 md:space-y-6">
+        <h1 className="text-2xl md:text-3xl font-bold">{t('settings.title')}</h1>
 
         <Card>
           <CardHeader>
@@ -294,13 +322,13 @@ export function Settings() {
             {settingGroups.map((group) => (
               <Card key={group.title}>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <CardTitle>{group.title}</CardTitle>
                       <CardDescription>{group.description}</CardDescription>
                     </div>
                     {group.channel && (
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <div className="flex items-center gap-2">
                           <Label htmlFor={`${group.channel}-enabled`} className="text-sm">
                             {isEnabled(group.channel) ? t('settings.enabled') : t('settings.disabled')}

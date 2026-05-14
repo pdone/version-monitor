@@ -15,7 +15,8 @@
   "nav": {
     "dashboard": "Dashboard",
     "repositories": "Repositories",
-    "settings": "Settings"
+    "settings": "Settings",
+    "about": "About"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -60,7 +61,11 @@
     "checkSuccess": "Check completed",
     "checkFailed": "Failed to check repository",
     "editSuccess": "Repository updated successfully",
-    "editFailed": "Failed to update repository"
+    "editFailed": "Failed to update repository",
+    "globalCronRepos": "Global Schedule Repos",
+    "customCronRepos": "Custom Schedule Repos",
+    "noGlobalCronRepos": "No repositories using global schedule.",
+    "noCustomCronRepos": "No repositories using custom schedule."
   },
   "addRepoDialog": {
     "title": "Add Repository",
@@ -69,6 +74,8 @@
     "ownerPlaceholder": "e.g., facebook",
     "repo": "Repository",
     "repoPlaceholder": "e.g., react",
+    "scheduleType": "Schedule Type:",
+    "useGlobalCron": "Use Global Cron",
     "cronExpression": "Cron Expression",
     "cronHelp": "Default: Every 6 hours. Use {link} for help.",
     "adding": "Adding...",
@@ -80,6 +87,9 @@
     "localVersion": "Local Version",
     "localVersionPlaceholder": "e.g., v1.0.0",
     "localVersionHelp": "Manually set the local version record. Leave empty to keep unchanged.",
+    "scheduleType": "Schedule Type:",
+    "useGlobalCron": "Use Global Cron",
+    "useCustomCron": "Custom Cron",
     "cronExpression": "Cron Expression",
     "cronHelp": "Default: Every 6 hours. Use {link} for help.",
     "saving": "Saving...",
@@ -157,11 +167,33 @@
     "testFailed": "Failed to send test notification",
     "testPartialFail": "Some notifications failed",
     "enabled": "Enabled",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "globalCron": "Global Cron Schedule",
+    "globalCronDesc": "Set the cron expression for repositories using global schedule",
+    "globalCronHelp": "Repositories with 'Use Global Schedule' enabled will follow this schedule",
+    "security": "Security",
+    "securityDesc": "Configure access password protection",
+    "accessPassword": "Access Password",
+    "accessPasswordPlaceholder": "Leave empty for no verification",
+    "accessPasswordHelp": "Set an access password to require verification when accessing the frontend. Leave empty for no verification."
   },
   "theme": {
     "light": "Light",
     "dark": "Dark",
     "system": "System"
+  },
+  "auth": {
+    "title": "Access Verification",
+    "description": "Please enter the access password to continue",
+    "password": "Password",
+    "passwordPlaceholder": "Enter access password",
+    "rememberMe": "Remember me",
+    "submit": "Verify",
+    "verifying": "Verifying...",
+    "invalidPassword": "Invalid password",
+    "verifyFailed": "Verification failed"
+  },
+  "about": {
+    "loadFailed": "Failed to load content"
   }
 }

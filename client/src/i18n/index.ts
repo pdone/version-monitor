@@ -19,6 +19,7 @@ function getNestedValue(obj: any, path: string): string | undefined {
 }
 
 const savedLocale = (localStorage.getItem('locale') as Locale) || 'en';
+document.documentElement.lang = savedLocale;
 
 export const useI18nStore = create<I18nState>((set, get) => ({
   locale: savedLocale,
@@ -26,6 +27,7 @@ export const useI18nStore = create<I18nState>((set, get) => ({
 
   setLocale: (locale: Locale) => {
     localStorage.setItem('locale', locale);
+    document.documentElement.lang = locale;
     set({ locale, messages: localeMap[locale] });
   },
 

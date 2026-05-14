@@ -63,6 +63,9 @@
     @apply bg-background text-foreground;
     height: 100%;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-text-size-adjust: 100%;
   }
   #root {
     height: 100%;
@@ -70,6 +73,13 @@
 }
 
 @layer utilities {
+  .prose pre code {
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    font-size: inherit;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--scrollbar-thumb)) hsl(var(--scrollbar-track));

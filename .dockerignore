@@ -5,7 +5,14 @@ server/dist
 client/dist
 data
 .git
+.github
+.vscode
 .gitignore
 *.md
+!README.md
+!README.zh.md
 .env
 .env.*
+*.tsbuildinfo
+Dockerfile
+docker-compose.yml

@@ -7,11 +7,13 @@ const router = Router();
 const addRepoSchema = z.object({
   owner: z.string().min(1),
   repo: z.string().min(1),
+  useGlobalCron: z.boolean().optional().default(true),
   cronExpression: z.string().optional(),
 });
 
 const updateRepoSchema = z.object({
   isActive: z.boolean().optional(),
+  useGlobalCron: z.boolean().optional(),
   cronExpression: z.string().optional(),
   localVersion: z.string().optional(),
 });
@@ -41,7 +43,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const body = addRepoSchema.parse(req.body);
-    const repo = await repoService.addRepo(body.owner, body.repo, body.cronExpression);
+    const repo = await repoService.addRepo(body.owner, body.repo, body.useGlobalCron, body.cronExpression);
     res.status(201).json(repo);
   } catch (error) {
     if (error instanceof z.ZodError) {

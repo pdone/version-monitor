@@ -5,24 +5,29 @@ A web application to monitor GitHub repository releases. Get notified when new v
 ## Features
 
 - Monitor GitHub repositories for new releases
-- Customizable cron schedule for each repository
+- Global cron schedule & per-repo custom cron schedule
 - Dark/Light/System theme support
 - Multi-language support (English, 简体中文)
 - Notifications via Webhook, ntfy, and VoceChat
-- Message template
+- Custom HTTP method & headers for each notification channel
+- Message template with variable substitution
+- Test notification sending
+- Batch notification for global cron repos
 - SQLite database for local storage
 - Modern UI with shadcn/ui components
+- Optional password protection for web interface
 
 ## Tech Stack
 
-**Backend:**
+### Backend
 - Node.js + TypeScript
 - Express.js
-- Drizzle ORM + SQLite
+- Drizzle ORM + better-sqlite3
 - node-cron
 - @octokit/rest
+- Zod
 
-**Frontend:**
+### Frontend
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS + shadcn/ui
@@ -38,14 +43,13 @@ A web application to monitor GitHub repository releases. Get notified when new v
 ```yaml
 services:
   version-monitor:
-    image: ghcr.io/your-username/version-monitor:latest
+    image: ghcr.io/pdone/version-monitor:latest
     container_name: version-monitor
     ports:
       - "3000:3000"
     volumes:
       - ./data:/app/data
     environment:
-      - NODE_ENV=production
       - PORT=3000
     restart: unless-stopped
 ```
@@ -61,7 +65,7 @@ docker compose up -d
 ### Docker Build from Source
 
 ```bash
-git clone https://github.com/your-username/version-monitor.git
+git clone https://github.com/pdone/version-monitor.git
 cd version-monitor
 docker compose up -d --build
 ```
@@ -70,8 +74,8 @@ docker compose up -d --build
 
 #### Prerequisites
 
-- Node.js 18+
-- npm or yarn
+- Node.js 20+
+- npm
 
 #### Steps
 
@@ -99,12 +103,14 @@ npm run build
 npm start
 ```
 
+Open http://localhost:3000 (Express serves both API and frontend static files)
+
 ## Usage
 
 1. Open http://localhost:3000 (or http://localhost:5173 in dev mode)
 2. Go to "Repositories" page and click "Add Repository"
 3. Enter the GitHub owner and repository name
-4. Configure the cron expression (default: every 6 hours)
+4. Configure the cron expression (default: use global schedule)
 5. The app will automatically check for new releases
 
 ## Configuration
@@ -113,37 +119,60 @@ npm start
 
 To avoid rate limiting, you can add a GitHub Personal Access Token:
 
-**Option 1: Environment Variable (Recommended)**
-
-Set in `docker-compose.yml`:
-```yaml
-environment:
-  - GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-```
-
-**Option 2: Web UI**
-
 1. Go to Settings page
 2. Enter your GitHub token
 3. Click Save
 
-Note: Environment variable takes priority over the web UI setting.
+### Authentication (Optional)
+
+You can protect the web interface with a password:
+
+1. Go to Settings page
+2. Enter your access password
+3. Click Save
+
+When enabled, users must enter the password to access the interface. The authentication state is stored in a cookie for 30 days if "Remember me" is checked.
 
 ### Notifications
 
 Configure one or more notification channels in Settings:
 
-- **Webhook**: POST request to a URL when new release is detected
+- **Webhook**: Send HTTP request to a URL when new release is detected
 - **ntfy**: Push notifications via ntfy.sh
-- **VoceChat**: Send notifications to a VoceChat channel
+- **VoceChat**: Send notifications to a VoceChat channel or user
+
+Each channel supports:
+- Custom HTTP method (GET/POST)
+- Custom request headers
+- Custom message body template
+
+#### Template Variables
+
+| Variable | Description |
+|----------|-------------|
+| `{owner}` | Repository owner |
+| `{repo}` | Repository name |
+| `{repo_full}` | Full name (owner/repo) |
+| `{latest_ver}` | Latest version |
+| `{local_ver}` | Local (current) version |
+| `{release_url}` | Release URL |
+| `{timestamp}` | ISO timestamp |
+
+### Cron Schedule
+
+- **Global cron**: Applies to all repos that use the global schedule (default: `0 2 * * *`, daily at 2 AM)
+- **Per-repo cron**: Override for individual repos (default: `0 */6 * * *`, every 6 hours)
 
 ## Cron Expression Examples
 
-- `0 */6 * * *` - Every 6 hours (default)
-- `0 */12 * * *` - Every 12 hours
-- `0 0 * * *` - Every day at midnight
-- `0 9 * * 1` - Every Monday at 9 AM
-- `*/30 * * * *` - Every 30 minutes
+| Expression | Description |
+|------------|-------------|
+| `0 */6 * * *` | Every 6 hours |
+| `0 */12 * * *` | Every 12 hours |
+| `0 0 * * *` | Every day at midnight |
+| `0 2 * * *` | Every day at 2 AM (global default) |
+| `0 9 * * 1` | Every Monday at 9 AM |
+| `*/30 * * * *` | Every 30 minutes |
 
 Use [crontab.guru](https://crontab.guru) for help with cron expressions.
 
@@ -151,17 +180,37 @@ Use [crontab.guru](https://crontab.guru) for help with cron expressions.
 
 ### Repositories
 
-- `GET /api/repos` - List all repositories
-- `POST /api/repos` - Add a repository
-- `PUT /api/repos/:id` - Update repository settings
-- `DELETE /api/repos/:id` - Remove a repository
-- `POST /api/repos/:id/mark-updated` - Mark as updated
-- `POST /api/repos/:id/check` - Trigger manual check
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/repos | List all repositories |
+| GET | /api/repos/:id | Get a repository |
+| POST | /api/repos | Add a repository |
+| PUT | /api/repos/:id | Update repository settings |
+| DELETE | /api/repos/:id | Remove a repository |
+| POST | /api/repos/:id/mark-updated | Mark as updated |
+| POST | /api/repos/:id/check | Trigger manual check |
 
 ### Settings
 
-- `GET /api/settings` - Get all settings
-- `PUT /api/settings` - Update settings
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/settings | Get all settings |
+| GET | /api/settings/defaults | Get default notification templates |
+| PUT | /api/settings | Update settings |
+| POST | /api/settings/test-notification | Send test notification |
+
+### Authentication
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/auth/check | Check if authentication is required |
+| POST | /api/auth/verify | Verify password |
+
+### Status
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/status | Server status |
 
 ## CI/CD
 

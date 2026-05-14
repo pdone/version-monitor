@@ -14,6 +14,7 @@ export interface Repository {
   description: string | null;
   htmlUrl: string | null;
   isActive: boolean;
+  useGlobalCron: boolean;
   cronExpression: string;
   localVersion: string | null;
   latestVersion: string | null;
@@ -27,7 +28,7 @@ export interface Repository {
 export const repoApi = {
   getAll: () => api.get<Repository[]>('/repos').then(res => res.data),
   getById: (id: number) => api.get<Repository>(`/repos/${id}`).then(res => res.data),
-  create: (data: { owner: string; repo: string; cronExpression?: string }) =>
+  create: (data: { owner: string; repo: string; useGlobalCron?: boolean; cronExpression?: string }) =>
     api.post<Repository>('/repos', data).then(res => res.data),
   update: (id: number, data: Partial<Repository>) =>
     api.put<Repository>(`/repos/${id}`, data).then(res => res.data),

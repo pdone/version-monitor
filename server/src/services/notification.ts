@@ -52,20 +52,9 @@ export const defaultWebhookBody = `{
   "release_url": "{release_url}",
   "timestamp": "{timestamp}"
 }`;
-
-export const defaultNtfyBody = `New Release: {repo_full}
-
-Version {latest_ver} is now available!
-Previous: {local_ver}
-
-{release_url}`;
-
-export const defaultVocechatBody = `🚀 **New Release: {repo_full}**
-
-Version: **{latest_ver}**
-Previous: {local_ver}
-
-[View Release]({release_url})`;
+const defaultMdBody = `- **{repo_full}:** *{local_ver}* **→ [{latest_ver}]({release_url})**`;
+export const defaultNtfyBody = defaultMdBody;
+export const defaultVocechatBody = defaultMdBody;
 
 async function sendRequest(
   url: string,
@@ -105,7 +94,7 @@ async function sendWebhook(config: Record<string, string>, payload: Notification
   const headers = parseHeaders(config.webhook_headers || '');
   const bodyTemplate = config.webhook_body || '';
 
-  const body = bodyTemplate ? renderTemplate(bodyTemplate, payload) : defaultWebhookBody;
+  const body = renderTemplate(bodyTemplate || defaultWebhookBody, payload);
 
   if (!headers['Content-Type'] && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
     headers['Content-Type'] = 'application/json';
@@ -122,15 +111,20 @@ async function sendNtfy(config: Record<string, string>, payload: NotificationPay
   const bodyTemplate = config.ntfy_body || '';
 
   const url = `${baseUrl}/${topic}`;
-  const body = bodyTemplate ? renderTemplate(bodyTemplate, payload) : defaultNtfyBody;
+  const body = renderTemplate(bodyTemplate || defaultNtfyBody, payload);
 
   if (!headers['Title']) {
-    headers['Title'] = `New Release: ${payload.repo.owner}/${payload.repo.repo}`;
+    headers['Title'] = `New Release`;
   }
   if (!headers['Click'] && payload.repo.latestVersionUrl) {
     headers['Click'] = payload.repo.latestVersionUrl;
   }
-
+  if (!headers['Markdown']) {
+    headers['Markdown'] = `yes`;
+  }
+  if (!headers['Tags']) {
+    headers['Tags'] = `rocket`;
+  }
   await sendRequest(url, method, headers, body);
 }
 
@@ -152,7 +146,7 @@ async function sendVocechat(config: Record<string, string>, payload: Notificatio
     throw new Error('VoceChat target not configured: set either vocechat_channel or vocechat_user');
   }
 
-  const message = bodyTemplate ? renderTemplate(bodyTemplate, payload) : defaultVocechatBody;
+  const message = renderTemplate(bodyTemplate || defaultVocechatBody, payload);
 
   if (!headers['Content-Type']) {
     headers['Content-Type'] = 'text/markdown';
@@ -188,6 +182,118 @@ export async function sendNotification(payload: NotificationPayload): Promise<vo
   await Promise.all(promises);
 }
 
+export async function sendBatchNotification(payloads: NotificationPayload[]): Promise<void> {
+  if (payloads.length === 0) {
+    return;
+  }
+
+  if (payloads.length === 1) {
+    return sendNotification(payloads[0]);
+  }
+
+  const config = getSettingsMap();
+
+  const promises: Promise<void>[] = [];
+
+  if (config.webhook_enabled !== 'false' && config.webhook_url) {
+    promises.push(sendBatchWebhook(config, payloads).catch(console.error));
+  }
+
+  if (config.ntfy_enabled !== 'false' && config.ntfy_url && config.ntfy_topic) {
+    promises.push(sendBatchNtfy(config, payloads).catch(console.error));
+  }
+
+  const vocechatEnabled = config.vocechat_url && config.vocechat_token &&
+    ((config.vocechat_target_type === 'user' && config.vocechat_user) ||
+     (config.vocechat_target_type !== 'user' && config.vocechat_channel));
+  if (config.vocechat_enabled !== 'false' && vocechatEnabled) {
+    promises.push(sendBatchVocechat(config, payloads).catch(console.error));
+  }
+
+  await Promise.all(promises);
+}
+
+async function sendBatchWebhook(config: Record<string, string>, payloads: NotificationPayload[]): Promise<void> {
+  const url = config.webhook_url;
+  const method = (config.webhook_method || 'POST').toUpperCase();
+  const headers = parseHeaders(config.webhook_headers || '');
+  const bodyTemplate = config.webhook_body || '';
+
+  const batchBody = payloads.map(payload => {
+    const body = renderTemplate(bodyTemplate || defaultWebhookBody, payload);
+    return JSON.parse(body);
+  });
+
+  if (!headers['Content-Type'] && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  await sendRequest(url, method, headers, JSON.stringify(batchBody));
+}
+
+async function sendBatchNtfy(config: Record<string, string>, payloads: NotificationPayload[]): Promise<void> {
+  const baseUrl = config.ntfy_url.replace(/\/+$/, '');
+  const topic = config.ntfy_topic;
+  const method = (config.ntfy_method || 'POST').toUpperCase();
+  const headers = parseHeaders(config.ntfy_headers || '');
+  const bodyTemplate = config.ntfy_body || '';
+
+  const url = `${baseUrl}/${topic}`;
+  
+  const batchBody = payloads.map(payload => {
+    return renderTemplate(bodyTemplate || defaultNtfyBody, payload);
+  }).join('\n\n');
+
+  if (!headers['Title']) {
+    headers['Title'] = `New Releases (${payloads.length} repos)`;
+  }
+  if (!headers['Click'] && payloads[0].repo.latestVersionUrl) {
+    headers['Click'] = payloads[0].repo.latestVersionUrl;
+  }
+  if (!headers['Markdown']) {
+    headers['Markdown'] = `yes`;
+  }
+  if (!headers['Tags']) {
+    headers['Tags'] = `rocket`;
+  }
+  await sendRequest(url, method, headers, batchBody);
+}
+
+async function sendBatchVocechat(config: Record<string, string>, payloads: NotificationPayload[]): Promise<void> {
+  const baseUrl = config.vocechat_url.replace(/\/+$/, '');
+  const token = config.vocechat_token;
+  const targetType = config.vocechat_target_type || 'channel';
+  const channelId = config.vocechat_channel;
+  const userId = config.vocechat_user;
+  const headers = parseHeaders(config.vocechat_headers || '');
+  const bodyTemplate = config.vocechat_body || '';
+
+  let url: string;
+  if (targetType === 'user' && userId) {
+    url = `${baseUrl}/api/bot/send_to_user/${userId}`;
+  } else if (channelId) {
+    url = `${baseUrl}/api/bot/send_to_group/${channelId}`;
+  } else {
+    throw new Error('VoceChat target not configured: set either vocechat_channel or vocechat_user');
+  }
+
+  let batchMessage = payloads.map(payload => {
+    return renderTemplate(bodyTemplate || defaultVocechatBody, payload);
+  }).join('\n\n');
+
+  batchMessage = `🚀 **New Release**\n` + batchMessage;
+
+  if (!headers['Content-Type']) {
+    headers['Content-Type'] = 'text/markdown';
+  }
+  if (!headers['x-api-key']) {
+    headers['x-api-key'] = token;
+  }
+
+  console.log('VoceChat batch request:', { url, method: 'POST', headers: { ...headers, 'x-api-key': '***' } });
+  await sendRequest(url, 'POST', headers, batchMessage);
+}
+
 export async function sendTestNotification(channel?: string, templates?: Record<string, string>): Promise<{ success: boolean; errors: string[] }> {
   const testPayload: NotificationPayload = {
     repo: {
@@ -197,6 +303,7 @@ export async function sendTestNotification(channel?: string, templates?: Record<
       description: 'Test repository',
       htmlUrl: 'https://github.com/test-owner/test-repo',
       isActive: true,
+      useGlobalCron: true,
       cronExpression: '0 */6 * * *',
       localVersion: 'v1.0.0',
       latestVersion: 'v2.0.0',

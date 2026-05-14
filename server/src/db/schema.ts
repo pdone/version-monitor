@@ -7,6 +7,7 @@ export const repositories = sqliteTable('repositories', {
   description: text('description'),
   htmlUrl: text('html_url'),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
+  useGlobalCron: integer('use_global_cron', { mode: 'boolean' }).default(true),
   cronExpression: text('cron_expression').default('0 */6 * * *'),
   localVersion: text('local_version'),
   latestVersion: text('latest_version'),

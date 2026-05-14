@@ -5,6 +5,8 @@ import { initializeDatabase } from './db';
 import { startScheduler } from './services/scheduler';
 import reposRouter from './routes/repos';
 import settingsRouter from './routes/settings';
+import aboutRouter from './routes/about';
+import authRouter from './routes/auth';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,8 +14,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/auth', authRouter);
 app.use('/api/repos', reposRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/about', aboutRouter);
 
 app.get('/api/status', (_req, res) => {
   res.json({

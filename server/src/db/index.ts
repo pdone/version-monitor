@@ -4,7 +4,9 @@ import * as schema from './schema';
 import path from 'path';
 import fs from 'fs';
 
-const dataDir = path.join(__dirname, '../../data');
+const dataDir = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '../../../data')
+  : path.join(__dirname, '../../data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
@@ -26,6 +28,7 @@ export function initializeDatabase() {
       description TEXT,
       html_url TEXT,
       is_active INTEGER DEFAULT 1,
+      use_global_cron INTEGER DEFAULT 1,
       cron_expression TEXT DEFAULT '0 */6 * * *',
       local_version TEXT,
       latest_version TEXT,
@@ -44,6 +47,13 @@ export function initializeDatabase() {
       description TEXT
     );
   `);
+
+  const hasUseGlobalCron = sqlite.prepare(`PRAGMA table_info(repositories)`).all()
+    .some((col: any) => col.name === 'use_global_cron');
+  if (!hasUseGlobalCron) {
+    sqlite.exec(`ALTER TABLE repositories ADD COLUMN use_global_cron INTEGER DEFAULT 1`);
+    console.log('Migration: added use_global_cron column');
+  }
 
   const defaultSettings = [
     { key: 'github_token', value: '', description: 'GitHub Personal Access Token (optional)' },
@@ -64,6 +74,8 @@ export function initializeDatabase() {
     { key: 'vocechat_method', value: 'POST', description: 'VoceChat request method (GET/POST)' },
     { key: 'vocechat_headers', value: '', description: 'VoceChat request headers (Key: Value per line)' },
     { key: 'vocechat_body', value: '', description: 'VoceChat request body template' },
+    { key: 'global_cron', value: '0 2 * * *', description: 'Global cron expression for repositories using global schedule' },
+    { key: 'access_password', value: '', description: 'Access password for frontend authentication' },
   ];
 
   const insertSetting = sqlite.prepare(
