@@ -1,0 +1,15 @@
+services:
+  version-monitor:
+    image: ghcr.io/${GITHUB_REPOSITORY:-your-username/version-monitor}:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: version-monitor
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
