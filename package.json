@@ -1,6 +1,6 @@
 {
   "name": "version-monitor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Monitor GitHub repository releases",
   "private": true,
   "scripts": {

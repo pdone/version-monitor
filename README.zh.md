@@ -17,6 +17,17 @@
 - 现代化 UI（shadcn/ui）
 - 可选的 Web 界面密码保护
 
+## 界面截图
+
+### 仪表盘
+![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/1_zh.png)
+
+### 仓库管理
+![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/2_zh.png)
+
+### 设置页面
+![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/3_zh.png)
+
 ## 技术栈
 
 ### 后端

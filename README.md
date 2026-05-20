@@ -2,6 +2,8 @@
 
 A web application to monitor GitHub repository releases. Get notified when new versions are available.
 
+> [中文文档](README.zh.md)
+
 ## Features
 
 - Monitor GitHub repositories for new releases
@@ -16,6 +18,17 @@ A web application to monitor GitHub repository releases. Get notified when new v
 - SQLite database for local storage
 - Modern UI with shadcn/ui components
 - Optional password protection for web interface
+
+## Screenshots
+
+### Dashboard
+![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/1.png)
+
+### Repositories
+![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/2.png)
+
+### Settings
+![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/3.png)
 
 ## Tech Stack
 

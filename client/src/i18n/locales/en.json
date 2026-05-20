@@ -65,7 +65,12 @@
     "globalCronRepos": "Global Schedule Repos",
     "customCronRepos": "Custom Schedule Repos",
     "noGlobalCronRepos": "No repositories using global schedule.",
-    "noCustomCronRepos": "No repositories using custom schedule."
+    "noCustomCronRepos": "No repositories using custom schedule.",
+    "sortBy": "Sort By",
+    "sortByName": "Name",
+    "sortByUpdate": "Update Time",
+    "sortAsc": "Ascending",
+    "sortDesc": "Descending"
   },
   "addRepoDialog": {
     "title": "Add Repository",

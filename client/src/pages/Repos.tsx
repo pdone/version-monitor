@@ -10,18 +10,24 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Trash2, ExternalLink, Check, Pencil, Clock } from 'lucide-react';
+import { RefreshCw, Trash2, ExternalLink, Check, Pencil, Clock, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useRepoStore, useSettingsStore } from '@/stores';
 import { AddRepoDialog } from '@/components/AddRepoDialog';
 import { EditRepoDialog } from '@/components/EditRepoDialog';
 import { toast } from '@/components/ui/toast';
 import { useI18nStore } from '@/i18n';
+import type { Repository } from '@/lib/api';
+
+type SortField = 'name' | 'updatedAt';
+type SortOrder = 'asc' | 'desc';
 
 export function Repos() {
   const { repos, fetchRepos, addRepo, updateRepo, deleteRepo, markUpdated, triggerCheck } = useRepoStore();
   const { settings, fetchSettings } = useSettingsStore();
   const { t } = useI18nStore();
   const [editRepo, setEditRepo] = useState<{ id: number; owner: string; repo: string; useGlobalCron: boolean; cronExpression: string; localVersion?: string } | null>(null);
+  const [sortField, setSortField] = useState<SortField>('updatedAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const globalCron = settings.global_cron || '0 2 * * *';
 
@@ -79,14 +85,66 @@ export function Repos() {
     }
   };
 
-  const globalCronRepos = repos.filter(repo => repo.useGlobalCron);
-  const customCronRepos = repos.filter(repo => !repo.useGlobalCron);
+  const sortRepos = (reposToSort: Repository[]) => {
+    return [...reposToSort].sort((a, b) => {
+      let comparison = 0;
+      if (sortField === 'name') {
+        const nameA = `${a.owner}/${a.repo}`.toLowerCase();
+        const nameB = `${b.owner}/${b.repo}`.toLowerCase();
+        comparison = nameA.localeCompare(nameB);
+      } else {
+        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        comparison = dateA - dateB;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder(field === 'name' ? 'asc' : 'desc');
+    }
+  };
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) return <ArrowUpDown className="h-3 w-3" />;
+    return sortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
+  };
+
+  const globalCronRepos = sortRepos(repos.filter(repo => repo.useGlobalCron));
+  const customCronRepos = sortRepos(repos.filter(repo => !repo.useGlobalCron));
 
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold">{t('repos.title')}</h1>
-        <AddRepoDialog onSubmit={handleAdd} globalCron={globalCron} />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 border rounded-md p-1">
+            <Button
+              variant={sortField === 'name' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => toggleSort('name')}
+              className="h-8 px-2 text-xs"
+            >
+              {t('repos.sortByName')}
+              {getSortIcon('name')}
+            </Button>
+            <Button
+              variant={sortField === 'updatedAt' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => toggleSort('updatedAt')}
+              className="h-8 px-2 text-xs"
+            >
+              {t('repos.sortByUpdate')}
+              {getSortIcon('updatedAt')}
+            </Button>
+          </div>
+          <AddRepoDialog onSubmit={handleAdd} globalCron={globalCron} />
+        </div>
       </div>
 
       {/* Global Cron Repos */}

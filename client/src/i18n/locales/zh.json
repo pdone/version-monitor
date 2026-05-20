@@ -65,7 +65,12 @@
     "globalCronRepos": "全局定时任务仓库",
     "customCronRepos": "自定义定时任务仓库",
     "noGlobalCronRepos": "没有使用全局定时任务的仓库。",
-    "noCustomCronRepos": "没有使用自定义定时任务的仓库。"
+    "noCustomCronRepos": "没有使用自定义定时任务的仓库。",
+    "sortBy": "排序方式",
+    "sortByName": "按名称",
+    "sortByUpdate": "按更新时间",
+    "sortAsc": "升序",
+    "sortDesc": "降序"
   },
   "addRepoDialog": {
     "title": "添加仓库",
