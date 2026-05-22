@@ -26,8 +26,12 @@ export function Repos() {
   const { settings, fetchSettings } = useSettingsStore();
   const { t } = useI18nStore();
   const [editRepo, setEditRepo] = useState<{ id: number; owner: string; repo: string; useGlobalCron: boolean; cronExpression: string; localVersion?: string } | null>(null);
-  const [sortField, setSortField] = useState<SortField>('updatedAt');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [sortField, setSortField] = useState<SortField>(() => {
+    return (localStorage.getItem('repos-sort-field') as SortField) || 'updatedAt';
+  });
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
+    return (localStorage.getItem('repos-sort-order') as SortOrder) || 'desc';
+  });
 
   const globalCron = settings.global_cron || '0 2 * * *';
 
@@ -103,10 +107,15 @@ export function Repos() {
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+      const next = sortOrder === 'asc' ? 'desc' : 'asc';
+      setSortOrder(next);
+      localStorage.setItem('repos-sort-order', next);
     } else {
       setSortField(field);
-      setSortOrder(field === 'name' ? 'asc' : 'desc');
+      const order = field === 'name' ? 'asc' : 'desc';
+      setSortOrder(order);
+      localStorage.setItem('repos-sort-field', field);
+      localStorage.setItem('repos-sort-order', order);
     }
   };
 
@@ -211,9 +220,9 @@ export function Repos() {
                         </TableCell>
                         <TableCell>
                           {repo.hasUpdate ? (
-                            <Badge variant="success">{t('dashboard.updateAvailable')}</Badge>
+                            <Badge variant="success" className="whitespace-nowrap">{t('dashboard.updateAvailable')}</Badge>
                           ) : (
-                            <Badge variant="secondary">{t('repos.upToDate')}</Badge>
+                            <Badge variant="secondary" className="whitespace-nowrap">{t('repos.upToDate')}</Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
@@ -263,9 +272,9 @@ export function Repos() {
                         )}
                       </div>
                       {repo.hasUpdate ? (
-                        <Badge variant="success" className="shrink-0">{t('dashboard.updateAvailable')}</Badge>
+                        <Badge variant="success" className="shrink-0 whitespace-nowrap">{t('dashboard.updateAvailable')}</Badge>
                       ) : (
-                        <Badge variant="secondary" className="shrink-0">{t('repos.upToDate')}</Badge>
+                        <Badge variant="secondary" className="shrink-0 whitespace-nowrap">{t('repos.upToDate')}</Badge>
                       )}
                     </div>
 
@@ -386,9 +395,9 @@ export function Repos() {
                         </TableCell>
                         <TableCell>
                           {repo.hasUpdate ? (
-                            <Badge variant="success">{t('dashboard.updateAvailable')}</Badge>
+                            <Badge variant="success" className="whitespace-nowrap">{t('dashboard.updateAvailable')}</Badge>
                           ) : (
-                            <Badge variant="secondary">{t('repos.upToDate')}</Badge>
+                            <Badge variant="secondary" className="whitespace-nowrap">{t('repos.upToDate')}</Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
@@ -438,9 +447,9 @@ export function Repos() {
                         )}
                       </div>
                       {repo.hasUpdate ? (
-                        <Badge variant="success" className="shrink-0">{t('dashboard.updateAvailable')}</Badge>
+                        <Badge variant="success" className="shrink-0 whitespace-nowrap">{t('dashboard.updateAvailable')}</Badge>
                       ) : (
-                        <Badge variant="secondary" className="shrink-0">{t('repos.upToDate')}</Badge>
+                        <Badge variant="secondary" className="shrink-0 whitespace-nowrap">{t('repos.upToDate')}</Badge>
                       )}
                     </div>
 

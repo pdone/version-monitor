@@ -147,7 +147,7 @@ export function Dashboard() {
                       {repo.owner}/{repo.repo}
                     </a>
                     {repo.hasUpdate && (
-                      <Badge variant="success" className="shrink-0">{t('dashboard.updateAvailable')}</Badge>
+                      <Badge variant="success" className="shrink-0 whitespace-nowrap">{t('dashboard.updateAvailable')}</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">

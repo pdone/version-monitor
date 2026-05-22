@@ -75,14 +75,24 @@ async function sendRequest(
       params.set('message', body);
     }
     const separator = url.includes('?') ? '&' : '?';
-    const response = await fetch(`${url}${separator}${params.toString()}`, fetchOptions);
+    let response: Response;
+    try {
+      response = await fetch(`${url}${separator}${params.toString()}`, fetchOptions);
+    } catch (err: any) {
+      throw new Error(`Network error: ${err.message || 'fetch failed'}`);
+    }
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     return;
   }
 
-  const response = await fetch(url, fetchOptions);
+  let response: Response;
+  try {
+    response = await fetch(url, fetchOptions);
+  } catch (err: any) {
+    throw new Error(`Network error: ${err.message || 'fetch failed'}`);
+  }
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }
@@ -113,6 +123,9 @@ async function sendNtfy(config: Record<string, string>, payload: NotificationPay
   const url = `${baseUrl}/${topic}`;
   const body = renderTemplate(bodyTemplate || defaultNtfyBody, payload);
 
+  if (!headers['Content-Type']) {
+    headers['Content-Type'] = 'text/plain; charset=utf-8';
+  }
   if (!headers['Title']) {
     headers['Title'] = `New Release`;
   }

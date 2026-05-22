@@ -8,7 +8,9 @@ import { Button } from './ui/button';
 export function Layout() {
   const location = useLocation();
   const { t } = useI18nStore();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    return localStorage.getItem('sidebar-collapsed') === 'true';
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -34,7 +36,11 @@ export function Layout() {
           variant="ghost"
           size="sm"
           className={cn("h-8 w-8 p-0", collapsed && "mx-auto")}
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => {
+            const next = !collapsed;
+            setCollapsed(next);
+            localStorage.setItem('sidebar-collapsed', String(next));
+          }}
         >
           {collapsed ? (
             <PanelLeft className="h-4 w-4" />
@@ -85,7 +91,7 @@ export function Layout() {
     <div className="flex h-screen overflow-hidden">
       <aside
         className={cn(
-          'flex flex-col border-r bg-muted/40 transition-all duration-300',
+          'flex flex-col border-r bg-muted transition-all duration-300',
           collapsed ? 'w-16' : 'w-64',
           'max-md:hidden'
         )}
@@ -102,7 +108,7 @@ export function Layout() {
 
       <aside
         className={cn(
-          'flex flex-col border-r bg-muted/40 transition-all duration-300 fixed inset-y-0 left-0 z-50 md:hidden',
+          'flex flex-col border-r bg-muted transition-all duration-300 fixed inset-y-0 left-0 z-50 md:hidden',
           mobileOpen ? 'w-64 translate-x-0' : 'w-64 -translate-x-full'
         )}
       >

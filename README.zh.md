@@ -1,6 +1,12 @@
 # Version Monitor
 
+[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io/pdone/version--monitor-2496ED?logo=github)](https://ghcr.io/pdone/version-monitor)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-pdone/version--monitor-2496ED?logo=docker)](https://hub.docker.com/r/pdone/version-monitor)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 监控 GitHub 开源项目 Release 版本更新的 Web 应用。
+
+> [English Document](https://github.com/pdone/version-monitor/blob/master/README.md)
 
 ## 功能特性
 
@@ -16,6 +22,7 @@
 - SQLite 本地存储
 - 现代化 UI（shadcn/ui）
 - 可选的 Web 界面密码保护
+- 关于页面，展示 README 文档
 
 ## 界面截图
 
@@ -27,6 +34,8 @@
 
 ### 设置页面
 ![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/3_zh.png)
+
+> 本文档中的截图可能更新不及时，请以实际效果为准
 
 ## 技术栈
 
@@ -214,6 +223,12 @@ npm start
 |------|------|------|
 | GET | /api/auth/check | 检查是否需要身份验证 |
 | POST | /api/auth/verify | 验证密码 |
+
+### 关于
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/about | 获取 README 内容（支持 `?lang=zh` 获取中文版） |
 
 ### 状态
 

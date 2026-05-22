@@ -1,8 +1,12 @@
 # Version Monitor
 
+[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io/pdone/version--monitor-2496ED?logo=github)](https://ghcr.io/pdone/version-monitor)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-pdone/version--monitor-2496ED?logo=docker)](https://hub.docker.com/r/pdone/version-monitor)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A web application to monitor GitHub repository releases. Get notified when new versions are available.
 
-> [中文文档](README.zh.md)
+> [中文文档](https://github.com/pdone/version-monitor/blob/master/README.zh.md)
 
 ## Features
 
@@ -18,6 +22,7 @@ A web application to monitor GitHub repository releases. Get notified when new v
 - SQLite database for local storage
 - Modern UI with shadcn/ui components
 - Optional password protection for web interface
+- About page displaying README documentation
 
 ## Screenshots
 
@@ -29,6 +34,8 @@ A web application to monitor GitHub repository releases. Get notified when new v
 
 ### Settings
 ![](https://cdn.awaw.cc/raw/pdone/static/master/img/project/version-monitor/3.png)
+
+> The screenshots in this document may not be updated in time, please refer to the actual effect
 
 ## Tech Stack
 
@@ -218,6 +225,12 @@ Use [crontab.guru](https://crontab.guru) for help with cron expressions.
 |--------|------|-------------|
 | GET | /api/auth/check | Check if authentication is required |
 | POST | /api/auth/verify | Verify password |
+
+### About
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | /api/about | Get README content (supports `?lang=zh` for Chinese) |
 
 ### Status
 

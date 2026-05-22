@@ -10,7 +10,10 @@
     "confirm": "确认",
     "success": "成功",
     "error": "错误",
-    "variables": "变量"
+    "variables": "变量",
+    "select": "请选择",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码"
   },
   "nav": {
     "dashboard": "仪表盘",

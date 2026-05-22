@@ -8,9 +8,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useSettingsStore } from '@/stores';
 import { toast } from '@/components/ui/toast';
 import { useI18nStore } from '@/i18n';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Eye, EyeOff } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function Settings() {
   const { settings, defaults, fetchSettings, fetchDefaults, updateSettings, testNotification } = useSettingsStore();
@@ -19,6 +20,7 @@ export function Settings() {
   const [loading, setLoading] = useState(false);
   const [testLoading, setTestLoading] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchSettings();
@@ -390,16 +392,21 @@ export function Settings() {
                         )}
                       </div>
                       {setting.type === 'select' ? (
-                        <select
-                          id={setting.key}
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        <Select
                           value={getValue(setting.key)}
-                          onChange={(e) => handleChange(setting.key, e.target.value)}
+                          onValueChange={(value) => handleChange(setting.key, value)}
                         >
-                          {setting.options?.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
+                          <SelectTrigger>
+                            <SelectValue placeholder={setting.placeholder || t('common.select')} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {setting.options?.map((opt) => (
+                              <SelectItem key={opt} value={opt}>
+                                {opt}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       ) : setting.type === 'textarea' ? (
                         <textarea
                           id={setting.key}
@@ -409,13 +416,31 @@ export function Settings() {
                           onChange={(e) => handleChange(setting.key, e.target.value)}
                         />
                       ) : (
-                        <Input
-                          id={setting.key}
-                          type={setting.type}
-                          placeholder={setting.placeholder}
-                          value={getValue(setting.key)}
-                          onChange={(e) => handleChange(setting.key, e.target.value)}
-                        />
+                        <div className="relative">
+                          <Input
+                            id={setting.key}
+                            type={setting.type === 'password' && showPassword[setting.key] ? 'text' : setting.type}
+                            placeholder={setting.placeholder}
+                            value={getValue(setting.key)}
+                            onChange={(e) => handleChange(setting.key, e.target.value)}
+                            className={setting.type === 'password' ? 'pr-10' : ''}
+                          />
+                          {setting.type === 'password' && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              onClick={() => setShowPassword(prev => ({ ...prev, [setting.key]: !prev[setting.key] }))}
+                            >
+                              {showPassword[setting.key] ? (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              ) : (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       )}
                       {setting.description && (
                         <p className="text-xs text-muted-foreground">{setting.description}</p>

@@ -10,7 +10,10 @@
     "confirm": "Confirm",
     "success": "Success",
     "error": "Error",
-    "variables": "Variables"
+    "variables": "Variables",
+    "select": "Select",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "nav": {
     "dashboard": "Dashboard",
