@@ -11,6 +11,8 @@ import authRouter from './routes/auth';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const packageJson = require('../package.json');
+
 app.use(cors());
 app.use(express.json());
 
@@ -22,8 +24,22 @@ app.use('/api/about', aboutRouter);
 app.get('/api/status', (_req, res) => {
   res.json({
     status: 'running',
+    version: packageJson.version,
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/latest-version', async (_req, res) => {
+  try {
+    const response = await fetch('https://api.github.com/repos/pdone/version-monitor/releases/latest');
+    if (!response.ok) {
+      throw new Error('Failed to fetch');
+    }
+    const data = await response.json() as { tag_name?: string };
+    res.json({ version: data.tag_name?.replace(/^v/, '') || '' });
+  } catch {
+    res.json({ version: '' });
+  }
 });
 
 const clientDistPath = path.join(__dirname, '../../client/dist');

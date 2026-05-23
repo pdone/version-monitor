@@ -205,6 +205,9 @@
     "verifyFailed": "Verification failed"
   },
   "about": {
-    "loadFailed": "Failed to load content"
+    "loadFailed": "Failed to load content",
+    "currentVersion": "Current Version",
+    "latestVersion": "Latest Version",
+    "projectHomepage": "Project Homepage"
   }
 }

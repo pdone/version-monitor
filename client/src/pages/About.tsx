@@ -7,6 +7,8 @@ export function About() {
   const { locale, t } = useI18nStore();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [currentVersion, setCurrentVersion] = useState('');
+  const [latestVersion, setLatestVersion] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -22,6 +24,17 @@ export function About() {
       });
   }, [locale]);
 
+  useEffect(() => {
+    fetch('/api/status')
+      .then(res => res.json())
+      .then(data => setCurrentVersion(data.version || ''))
+      .catch(() => {});
+    fetch('/api/latest-version')
+      .then(res => res.json())
+      .then(data => setLatestVersion(data.version || ''))
+      .catch(() => {});
+  }, []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -32,6 +45,26 @@ export function About() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <div className="mb-6 p-4 border rounded-lg flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <span className="text-sm">
+            {t('about.currentVersion')}: <span className="font-medium">v{currentVersion}</span>
+          </span>
+          {latestVersion && (
+            <span className="text-sm">
+              {t('about.latestVersion')}: <span className="font-medium">v{latestVersion}</span>
+            </span>
+          )}
+        </div>
+        <a
+          href="https://github.com/pdone/version-monitor"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-primary hover:underline"
+        >
+          {t('about.projectHomepage')}
+        </a>
+      </div>
       <div className="prose prose-sm dark:prose-invert max-w-none
         prose-headings:font-semibold prose-headings:tracking-tight
         prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
