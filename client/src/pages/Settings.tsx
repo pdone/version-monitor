@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +34,15 @@ export function Settings() {
   const handleChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
+
+  const toggleKeys = useMemo(() => ['webhook_enabled', 'ntfy_enabled', 'vocechat_enabled'], []);
+
+  const isDirty = useMemo(() => {
+    return Object.keys(formData).some((key) => {
+      if (toggleKeys.includes(key)) return false;
+      return formData[key] !== (settings[key] ?? '');
+    });
+  }, [formData, settings, toggleKeys]);
 
   const handleTestNotification = async (channel: string) => {
     setTestLoading(channel);
@@ -91,10 +100,8 @@ export function Settings() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
     setLoading(true);
-
     try {
       await updateSettings(formData);
       toast({ title: t('settings.saveSuccess') });
@@ -103,6 +110,11 @@ export function Settings() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSave();
   };
 
   const getValue = (key: string) => {
@@ -451,13 +463,20 @@ export function Settings() {
               </Card>
             ))}
 
-            <div className="flex justify-end gap-2">
-              <Button type="submit" disabled={loading}>
-                {loading ? t('settings.saving') : t('common.save')}
-              </Button>
-            </div>
           </div>
         </form>
+
+        {isDirty && (
+          <div className="fixed bottom-4 right-4 z-[101] flex items-center gap-3 rounded-lg border bg-background p-4 shadow-lg animate-in slide-in-from-bottom-2 fade-in-0">
+            <span className="text-sm font-medium">{t('settings.unsavedChanges')}</span>
+            <Button size="sm" disabled={loading} onClick={handleSave}>
+              {loading ? t('settings.saving') : t('common.save')}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setFormData(settings)}>
+              {t('settings.discard')}
+            </Button>
+          </div>
+        )}
       </div>
     </TooltipProvider>
   );

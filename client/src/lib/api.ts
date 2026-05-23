@@ -21,6 +21,7 @@ export interface Repository {
   latestVersionUrl: string | null;
   hasUpdate: boolean;
   lastCheckedAt: string | null;
+  latestReleasePublishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -323,6 +323,7 @@ export async function sendTestNotification(channel?: string, templates?: Record<
       latestVersionUrl: 'https://github.com/test-owner/test-repo/releases/tag/v2.0.0',
       hasUpdate: true,
       lastCheckedAt: new Date().toISOString(),
+      latestReleasePublishedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },

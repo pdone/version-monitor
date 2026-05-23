@@ -30,11 +30,15 @@ export async function addRepo(owner: string, repo: string, useGlobalCron: boolea
     localVersion: release?.tagName || null,
     latestVersion: release?.tagName || null,
     latestVersionUrl: release?.htmlUrl || null,
+    latestReleasePublishedAt: release?.publishedAt || null,
     hasUpdate: false,
     lastCheckedAt: new Date().toISOString(),
   };
 
-  const created = db.insert(repositories).values(newRepo).returning().get();
+  db.insert(repositories).values(newRepo).run();
+  const created = db.select().from(repositories)
+    .where(and(eq(repositories.owner, owner), eq(repositories.repo, repo)))
+    .get()!;
   scheduleRepo(created);
 
   return created;

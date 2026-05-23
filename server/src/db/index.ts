@@ -35,6 +35,7 @@ export function initializeDatabase() {
       latest_version_url TEXT,
       has_update INTEGER DEFAULT 0,
       last_checked_at TEXT,
+      latest_release_published_at TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(owner, repo)
@@ -53,6 +54,13 @@ export function initializeDatabase() {
   if (!hasUseGlobalCron) {
     sqlite.exec(`ALTER TABLE repositories ADD COLUMN use_global_cron INTEGER DEFAULT 1`);
     console.log('Migration: added use_global_cron column');
+  }
+
+  const hasLatestReleasePublishedAt = sqlite.prepare(`PRAGMA table_info(repositories)`).all()
+    .some((col: any) => col.name === 'latest_release_published_at');
+  if (!hasLatestReleasePublishedAt) {
+    sqlite.exec(`ALTER TABLE repositories ADD COLUMN latest_release_published_at TEXT`);
+    console.log('Migration: added latest_release_published_at column');
   }
 
   const defaultSettings = [

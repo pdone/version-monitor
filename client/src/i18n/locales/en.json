@@ -50,6 +50,7 @@
     "latestVersion": "Latest Version",
     "status": "Status",
     "lastChecked": "Last Checked",
+    "releasePublishedAt": "Release Time",
     "actions": "Actions",
     "upToDate": "Up to Date",
     "never": "Never",
@@ -183,7 +184,9 @@
     "securityDesc": "Configure access password protection",
     "accessPassword": "Access Password",
     "accessPasswordPlaceholder": "Leave empty for no verification",
-    "accessPasswordHelp": "Set an access password to require verification when accessing the frontend. Leave empty for no verification."
+    "accessPasswordHelp": "Set an access password to require verification when accessing the frontend. Leave empty for no verification.",
+    "unsavedChanges": "Settings modified, save?",
+    "discard": "Discard"
   },
   "theme": {
     "light": "Light",

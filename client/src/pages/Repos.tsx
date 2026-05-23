@@ -97,8 +97,8 @@ export function Repos() {
         const nameB = `${b.owner}/${b.repo}`.toLowerCase();
         comparison = nameA.localeCompare(nameB);
       } else {
-        const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
-        const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      const dateA = a.latestReleasePublishedAt ? new Date(a.latestReleasePublishedAt).getTime() : 0;
+      const dateB = b.latestReleasePublishedAt ? new Date(b.latestReleasePublishedAt).getTime() : 0;
         comparison = dateA - dateB;
       }
       return sortOrder === 'asc' ? comparison : -comparison;
@@ -176,6 +176,7 @@ export function Repos() {
                       <TableHead>{t('repos.localVersion')}</TableHead>
                       <TableHead>{t('repos.latestVersion')}</TableHead>
                       <TableHead>{t('repos.status')}</TableHead>
+                      <TableHead>{t('repos.releasePublishedAt')}</TableHead>
                       <TableHead>{t('repos.lastChecked')}</TableHead>
                       <TableHead className="text-right">{t('repos.actions')}</TableHead>
                     </TableRow>
@@ -224,6 +225,9 @@ export function Repos() {
                           ) : (
                             <Badge variant="secondary" className="whitespace-nowrap">{t('repos.upToDate')}</Badge>
                           )}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {repo.latestReleasePublishedAt ? new Date(repo.latestReleasePublishedAt).toLocaleString() : 'N/A'}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {repo.lastCheckedAt ? new Date(repo.lastCheckedAt).toLocaleString() : t('repos.never')}
@@ -303,7 +307,7 @@ export function Repos() {
 
                     <div className="flex items-center text-xs text-muted-foreground">
                       <Clock className="h-3 w-3 mr-1" />
-                      {repo.lastCheckedAt ? new Date(repo.lastCheckedAt).toLocaleString() : t('repos.never')}
+                      {repo.latestReleasePublishedAt ? `${t('repos.releasePublishedAt')}: ${new Date(repo.latestReleasePublishedAt).toLocaleString()}` : `${t('repos.releasePublishedAt')}: N/A`}
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">
@@ -351,6 +355,7 @@ export function Repos() {
                       <TableHead>{t('repos.localVersion')}</TableHead>
                       <TableHead>{t('repos.latestVersion')}</TableHead>
                       <TableHead>{t('repos.status')}</TableHead>
+                      <TableHead>{t('repos.releasePublishedAt')}</TableHead>
                       <TableHead>{t('repos.lastChecked')}</TableHead>
                       <TableHead className="text-right">{t('repos.actions')}</TableHead>
                     </TableRow>
@@ -399,6 +404,9 @@ export function Repos() {
                           ) : (
                             <Badge variant="secondary" className="whitespace-nowrap">{t('repos.upToDate')}</Badge>
                           )}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {repo.latestReleasePublishedAt ? new Date(repo.latestReleasePublishedAt).toLocaleString() : 'N/A'}
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {repo.lastCheckedAt ? new Date(repo.lastCheckedAt).toLocaleString() : t('repos.never')}
@@ -478,7 +486,7 @@ export function Repos() {
 
                     <div className="flex items-center text-xs text-muted-foreground">
                       <Clock className="h-3 w-3 mr-1" />
-                      {repo.lastCheckedAt ? new Date(repo.lastCheckedAt).toLocaleString() : t('repos.never')}
+                      {repo.latestReleasePublishedAt ? `${t('repos.releasePublishedAt')}: ${new Date(repo.latestReleasePublishedAt).toLocaleString()}` : `${t('repos.releasePublishedAt')}: N/A`}
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">

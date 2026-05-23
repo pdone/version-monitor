@@ -14,6 +14,7 @@ export const repositories = sqliteTable('repositories', {
   latestVersionUrl: text('latest_version_url'),
   hasUpdate: integer('has_update', { mode: 'boolean' }).default(false),
   lastCheckedAt: text('last_checked_at'),
+  latestReleasePublishedAt: text('latest_release_published_at'),
   createdAt: text('created_at').default('CURRENT_TIMESTAMP'),
   updatedAt: text('updated_at').default('CURRENT_TIMESTAMP'),
 });

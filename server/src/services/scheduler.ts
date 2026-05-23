@@ -116,17 +116,19 @@ export async function checkRepo(repoId: number): Promise<Repository | null> {
     const previousVersion = repo.latestVersion;
     const hasUpdate = repo.localVersion !== null && repo.localVersion !== release.tagName;
 
-    const updatedRepo = db.update(repositories)
+    db.update(repositories)
       .set({
         latestVersion: release.tagName,
         latestVersionUrl: release.htmlUrl,
+        latestReleasePublishedAt: release.publishedAt,
         hasUpdate,
         lastCheckedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       })
       .where(eq(repositories.id, repoId))
-      .returning()
-      .get();
+      .run();
+
+    const updatedRepo = db.select().from(repositories).where(eq(repositories.id, repoId)).get()!;
 
     if (previousVersion && previousVersion !== release.tagName && repo.localVersion !== release.tagName) {
       await sendNotification({
@@ -190,17 +192,19 @@ export async function checkGlobalCronRepos(): Promise<void> {
       const previousVersion = repo.latestVersion;
       const hasUpdate = repo.localVersion !== null && repo.localVersion !== release.tagName;
 
-      const updatedRepo = db.update(repositories)
+      db.update(repositories)
         .set({
           latestVersion: release.tagName,
           latestVersionUrl: release.htmlUrl,
+          latestReleasePublishedAt: release.publishedAt,
           hasUpdate,
           lastCheckedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         })
         .where(eq(repositories.id, repo.id))
-        .returning()
-        .get();
+        .run();
+
+      const updatedRepo = db.select().from(repositories).where(eq(repositories.id, repo.id)).get()!;
 
       if (previousVersion && previousVersion !== release.tagName && repo.localVersion !== release.tagName) {
         notificationsToSend.push({

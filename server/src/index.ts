@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { initializeDatabase } from './db';
-import { startScheduler } from './services/scheduler';
+import { startScheduler, stopScheduler } from './services/scheduler';
 import reposRouter from './routes/repos';
 import settingsRouter from './routes/settings';
 import aboutRouter from './routes/about';
@@ -35,8 +35,24 @@ app.get('*', (_req, res) => {
 initializeDatabase();
 startScheduler();
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+function gracefulShutdown(signal: string) {
+  console.log(`Received ${signal}. Shutting down gracefully...`);
+  stopScheduler();
+  server.close(() => {
+    console.log('HTTP server closed');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout');
+    process.exit(1);
+  }, 5000);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 export default app;

@@ -50,6 +50,7 @@
     "latestVersion": "最新版本",
     "status": "状态",
     "lastChecked": "上次检查",
+    "releasePublishedAt": "更新时间",
     "actions": "操作",
     "upToDate": "已是最新",
     "never": "从未",
@@ -183,7 +184,9 @@
     "securityDesc": "配置访问密码保护",
     "accessPassword": "访问密码",
     "accessPasswordPlaceholder": "留空则无需验证",
-    "accessPasswordHelp": "设置访问密码后，访问前端需要输入密码验证。留空表示无需验证。"
+    "accessPasswordHelp": "设置访问密码后，访问前端需要输入密码验证。留空表示无需验证。",
+    "unsavedChanges": "设置已修改，是否保存？",
+    "discard": "放弃"
   },
   "theme": {
     "light": "浅色",
